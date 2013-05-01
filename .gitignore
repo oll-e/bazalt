@@ -3,6 +3,17 @@ bin
 obj
 build
 tmp
+installer.zip
+config.php
+node_modules
+assets/components/*
+assets/require.js
+themes/default/assets/css/*
+themes/default/assets/img/*
+themes/default/assets/js/*
+uploads/*
+static/*
+.svn
 .idea
 
 # mstest test results

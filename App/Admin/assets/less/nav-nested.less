@@ -1,0 +1,51 @@
+.nav-nested {
+    margin: 4px 0 4px -6px;
+    border: 0 none transparent;
+    padding: 0;
+    background: transparent;
+
+    li {
+        border: 1px solid transparent;
+        list-style: none;
+        margin: 0px;
+
+        & > div {
+            display: table;
+        }
+        &.active > div > a {
+            color: #fff;
+            background-color: @component-active-bg;
+
+            &:first-child {
+                color: @grayLight;
+                background-color: transparent;
+            }
+        }
+
+        & > ol {
+            margin: 0 0 0 10px;
+            display: none;
+        }
+        &.expanded > ol {
+            display: block;
+        }
+
+        & > div > a {
+            display: table-cell;
+            padding: 2px 6px;
+            
+            &:first-child {
+                padding: 2px;
+                opacity: .5;
+                text-decoration: none;
+                text-align: right;
+                width: 20px;
+                color: @grayLight;
+                
+                &:hover {
+                    opacity: 1;
+                }
+            }
+        }
+    }
+}

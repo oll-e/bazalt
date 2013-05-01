@@ -124,6 +124,14 @@ class View extends Scope
 
     protected function replaceTags($content)
     {
+        $components = Bazalt::getComponents();
+        $loadedComponents = [];
+        foreach ($components as $component) {
+            $loadedComponents []= $component::getName();
+        }
+        $insert = ' bazalt-cms-components="' . implode(',', $loadedComponents) . '"';
+        $content = preg_replace('#<body([^>]*)>#i',"<body$1{$insert}>", $content);
+
         return $content;
         if (!self::$addScripts) {
             return $content;
@@ -149,11 +157,15 @@ class View extends Scope
         return $content;
     }
 
-    public function showPage($template, &$content = null)
+    public function showPage($template, &$content = null, Route $route = null)
     {
+        if ($route && $info = $route->getMetaInfo()) {
+            $meta = $info->toString();
+            $this->assign('_meta', $info->toTemplate());
+        }
         //CMS_Theme::addMetadata();
         if (strpos($_SERVER['HTTP_ACCEPT'], 'application/json') === 0) {
-            Response::output($content);
+            Response::output($meta . '<div class="ng-view-container">' . $content . '</div>');
             exit;
         }
 
@@ -172,5 +184,4 @@ class View extends Scope
 
 View::engine('php', new View\PHPEngine());
 View::engine('twg', new View\TwigEngine());
-View::engine('tpl', new View\SmartyEngine());
 View::engine('inc', new View\PHPEngine());

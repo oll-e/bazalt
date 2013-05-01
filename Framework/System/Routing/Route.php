@@ -53,8 +53,9 @@ class Route
      */
     public static function root()
     {
+        $class = get_called_class();
         if (self::$root == null) {
-            self::$root = new Route('home', '/', null);
+            self::$root = new $class('home', '/', null);
         }
         return self::$root;
     }
@@ -63,6 +64,14 @@ class Route
     {
         self::$names = [];
         self::$root = null;
+    }
+
+    public static function urlPrefix($urlPrefix = null)
+    {
+        if ($urlPrefix !== null) {
+            self::$urlPrefix = $urlPrefix;
+        }
+        return self::$urlPrefix;
     }
 
     public static function get($name)
@@ -126,8 +135,9 @@ class Route
             $params = array_map('urldecode', $params);
             foreach ($this->conditions as $name => $conditions) {
                 foreach ($conditions as $condition) {
-                    if ((is_string($condition) && !preg_match(self::REGEX_SYMBOL . '^' . $condition . '$' . self::REGEX_SYMBOL, $params[$name])) ||
-                        (is_callable($condition) && !$condition($url, $name, $params[$name], $params))) {
+                    $paramValue = isset($params[$name]) ? $params[$name] : null;
+                    if ((is_string($condition) && !preg_match(self::REGEX_SYMBOL . '^' . $condition . '$' . self::REGEX_SYMBOL, $paramValue)) ||
+                        (is_callable($condition) && !$condition($url, $name, $paramValue, $params, $this))) {
                         return false;
                     }
                 }
@@ -173,7 +183,8 @@ class Route
 
     public function connect($name, $rule, $options = array())
     {
-        $route = new Route($name, $rule, $this);
+        $class = get_called_class();
+        $route = new $class($name, $rule, $this);
         $route->params = $options;
 
         return $route;
@@ -255,7 +266,7 @@ class Route
 
         // for url like /index_dev.php/etc/...
         if (array_key_exists('PATH_INFO', $_SERVER) && !ROUTING_NO_SCRIPT_NAME) {
-            $prefix = $_SERVER['PATH_INFO'] . $prefix;
+            $prefix = $_SERVER['SCRIPT_NAME'] . $prefix;
         }
         $prefix = rtrim($prefix, '/');
         $url = $prefix . $url;
@@ -299,7 +310,7 @@ class Route
             if (is_numeric($name)) {
                 continue;
             }
-            if (!array_key_exists($name, $args)) {
+            if (substr($name, 0, 1) != '_' && !array_key_exists($name, $args)) {
                 throw new \Exception('Method "' . $controllerClass . '::' . $action . '" must have param' .
                     ' "' . $name . '" as in route "' . $this->name() . '"' .
                     'or set their default value');

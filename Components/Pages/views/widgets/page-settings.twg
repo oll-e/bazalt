@@ -1,0 +1,16 @@
+<div class="bz-form-row">
+    <label>{% tr %}Select page:{% endtr %}</label>
+    <select name="pageId" ng-model="widget.config.pageId">
+        {% for page in all_pages %}
+            {% if page.is_published %}
+                <option value="{{ page.id }}"{% if options.pageId == page.id %} selected="selected"{% endif %}>{{ page.title }}</option>
+            {% endif %}
+        {% endfor %}
+    </select>
+</div>
+<div class="bz-form-row">
+    <label class="checkbox">
+        <input type="checkbox" ng-model="widget.config.show_title"/>
+        {% tr %}Show title ?{% endtr %}
+    </label>
+</div>

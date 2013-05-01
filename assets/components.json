@@ -8,8 +8,16 @@
   ],
   "dependencies": {
     "jquery": "1.9.1",
-    "angularjs-bower": "https://github.com/mjaric/angularjs-bower.git",
+    "angular": "https://github.com/jmeiss/bower-angular-unstable.git#~1.1.4",
     "requirejs": "~2.1.5",
-    "underscore": "~1.4.4"
+    "ng-table": "https://github.com/esvit/ng-table.git",
+    "ng-finder": "https://github.com/esvit/ng-finder.git",
+    "nestedSortable": "https://github.com/mjsarfatti/nestedSortable.git",
+    "ng-editable-tree": "https://github.com/esvit/ng-editable-tree.git",
+    "bootstrap": "~2.3.1",
+    "ckeditor": "latest",
+    "plupload": "https://github.com/gregmolnar/plupload-bower.git",
+    "jquery-ui-touch-punch": "latest",
+    "jquery-ui": "~1.10.2"
   }
 }
