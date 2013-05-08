@@ -27,27 +27,27 @@ define(['jquery-ui', 'angular-cookies'], function() {
                                 $scope.showWidgets = !$scope.showWidgets;
                             }
                         }
-                    ];
+                    }
+                ];
 
-                    $scope.$watch('showWidgets', function(value) {
-                        var body = $('body');
-                        body.toggleClass('cms-manage-widgets', value);
-                        $cookieStore.put('showWidgets', value);
-                        if (value) {
-                            body.css('marginLeft', '200px');
-                        } else {
-                            body.css('marginLeft', '0px');
-                        }
-                    });
-                    $scope.showWidgets = !!$cookieStore.get('showWidgets');
-                    $scope.widgets = WidgetsService.query();
+                $scope.$watch('showWidgets', function(value) {
+                    var body = $('body');
+                    body.toggleClass('cms-manage-widgets', value);
+                    $cookieStore.put('showWidgets', value);
+                    if (value) {
+                        body.css('marginLeft', '200px');
+                    } else {
+                        body.css('marginLeft', '0px');
+                    }
+                });
+                $scope.showWidgets = !!$cookieStore.get('showWidgets');
+                $scope.widgets = WidgetsService.query();
 
-                    $rootScope.$emit('adminPanelInit', $scope);
-                }],
-                link: function() {
-                    // body and bootstrap nav fixed
-                    $('body, .navbar-fixed-top').css('marginTop', 40);
-                }
+                $rootScope.$emit('adminPanelInit', $scope);
+            }],
+            link: function() {
+                // body and bootstrap nav fixed
+                $('body, .navbar-fixed-top').css('paddingTop', 40);
             }
         })
         .directive('widgets', function($compile, WidgetsService) {
