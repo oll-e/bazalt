@@ -6,13 +6,17 @@ tmp
 installer.zip
 config.php
 node_modules
+Framework/Vendors/*
 assets/components/*
+Framework/Vendors/*
 assets/require.js
 themes/default/assets/css/*
 themes/default/assets/img/*
 themes/default/assets/js/*
 uploads/*
 static/*
+composer.lock
+composer.phar
 .svn
 .idea
 

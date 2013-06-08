@@ -23,6 +23,16 @@ define([
                 icon: 'icon-picture'
             });
         })
+        .directive("albumsCollection", function(AlbumService) {
+            return {
+                restrict: 'A',
+                link: function(scope, element, attrs) {
+                    AlbumService.query({}, function(result) {
+                        scope.albums = result;
+                    });
+                }
+            };
+        })
         .directive('ngSortable', function() {
             return {
                 require: '?ngModel',
@@ -68,7 +78,10 @@ define([
                 updateOrder: { method: 'PUT', data: { 'orders': '@' }, isArray: false }
             });
     })
-    .controller('GalleryCtrl', function($scope, $rootScope, $location, $routeParams, AlbumService, $http) {
+    .controller('GalleryCtrl', function($scope, $rootScope, $location, $routeParams, AlbumService, $http, $filter) {
+        $scope.photoId = null;
+        $scope.activateMenu('Gallery'); // activate admin menu
+
         $rootScope.breadcrumbs = [
             {
                 'title' : 'Dashboard',
@@ -134,8 +147,10 @@ define([
         }
         // Edit photo
         $scope.editPhoto = function(photo) {
+            photo.thumb = '/thumb.php' + photo.image + '?h=200';
             $scope.photo = photo;
             $location.search({ id: photo.album_id, photo_id: photo.id });
+            $scope.includeFile = '/Components/Gallery/views/admin/photo.html?id=' + photo.id;
         }
         // Edit photo
         $scope.savePhoto = function(photo) {
@@ -168,7 +183,7 @@ define([
                         'url': '#!/gallery'
                     },
                     {
-                        'title' : $scope.album.title.ukr
+                        'title' : $filter('language')($scope.album.title)
                     }
                 ];
             }
@@ -180,7 +195,6 @@ define([
             }
             if (album && file) {
                 album.images_count++;
-                console.info(file);
                 $scope.photos.unshift(file);
             }
             if (!$scope.$$phase) {
@@ -237,6 +251,26 @@ define([
                 $scope.busy = false;
             });
         };
+    })
+    .controller('EditPhotoCtrl', function($scope, $rootScope, $location, $routeParams, AlbumService, $http) {
+        $scope.activateMenu('Gallery'); // activate admin menu
+
+        $rootScope.breadcrumbs = [
+            {
+                'title' : 'Dashboard',
+                'url': '#!/'
+            },
+            {
+                'title' : 'Gallery'
+            }
+        ];
+
+        // Edit photo
+        $scope.savePhoto = function(photo) {
+            photo.$savePhoto({ id: photo.album_id, photo_id: photo.id }, function() {
+                $location.url($location.url());
+            });
+        }
     });
 
 });

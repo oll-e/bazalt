@@ -31,6 +31,12 @@ class Component extends CMS\Component
 
     public function initComponent(CMS\Application $application)
     {
+        if ($application instanceof \App\Site\Application) {
+            //$application->registerJsComponent('Component.Files', relativePath(__DIR__ . '/component.js'));
+        } else {
+            $application->registerJsComponent('Component.Files.Admin', relativePath(__DIR__ . '/admin.js'));
+        }
+
         $controller = 'Components\Files\Controller\Index';
 
         $map = Route::root();
@@ -38,7 +44,8 @@ class Component extends CMS\Component
         $downloads = $map->connect('Files.Downloads', '/download',              ['component' => self::getName(), 'controller' => $controller, 'action' => 'viewFiles']);
         $downloads       ->connect('Files.File',               '/file{id:\d+}', ['component' => self::getName(), 'controller' => $controller, 'action' => 'downloadFile']);
 
-        Route::root()->connect('Files.elFinder', '/elfinder/', ['component' => self::getName(), 'controller' => $controller, 'action' => 'elFinder']);
+        Route::root()->connect('Files.elFinder', '/elfinder/', ['component' => self::getName(), 'controller' => $controller, 'action' => 'elFinder'])
+                     ->noIndex();
     }
 
     public function getMenuTypes()

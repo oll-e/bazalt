@@ -1,10 +1,37 @@
+var path = require('path');
+
 module.exports = function(grunt) {
 
     var isDev = true;
+    if (grunt.option('prod')) {
+        isDev = false;
+    }
 
     // Project configuration.
     grunt.initConfig({
-        pkg: grunt.file.readJSON('package.json'),
+        pkg: '<json:package.json>',
+        php: {
+            dist: {
+                options: {
+                    port: 8000,
+                    base: '.',
+                    open: true,
+                    keepalive: true
+                }
+            }
+        },
+        phpunit: {
+            unit: {
+                configuration: 'Tests/travis/mysql.xml'
+            },
+            options: {
+                coverageHtml: 'Tests/coverage/',
+                bin: 'phpunit',
+                bootstrap: 'tests/Bootstrap.php',
+                colors: true,
+                testdox: true
+            }
+        },
         uglify: {
             options: {
                 compress: !isDev,
@@ -41,6 +68,12 @@ module.exports = function(grunt) {
                     //'assets/components/jquery-ui/ui/i18n/*.js'
                 ],
                 dest: 'assets/components/jquery-ui.js'
+            },
+            'modernizr.js': {
+                src: [
+                    'assets/components/modernizr/modernizr.js'
+                ],
+                dest: 'assets/components/modernizr.js'
             },
             'bazalt-cms.js': {
                 src: [
@@ -83,7 +116,7 @@ module.exports = function(grunt) {
             },
             'ng-editable-tree.js': {
                 src: [
-                    'assets/components/nestedSortable/jquery.ui.nestedSortable.js',
+                    'assets/modules/nestedSortable/jquery.mjs.nestedSortable.js',
                     'assets/components/ng-editable-tree/ng-editable-tree.js'
                 ],
                 dest: 'assets/components/ng-editable-tree.js'
@@ -95,11 +128,29 @@ module.exports = function(grunt) {
                 ],
                 dest: 'assets/components/bz-switcher.js'
             },
+            'colorpicker.js': {
+                src: [
+                    'assets/components/bootstrap-colorpicker/js/bootstrap-colorpicker.js'
+                ],
+                dest: 'assets/components/colorpicker.js'
+            },
+            'ng-ace.js': {
+                src: [
+                    'assets/modules/angular-ace/angular-ace.js'
+                ],
+                dest: 'assets/components/ng-ace.js'
+            },
             'jquery.ui.touch-punch.js': {
                 src: [
                     'assets/components/jquery-ui-touch-punch/jquery.ui.touch-punch.js'
                 ],
                 dest: 'assets/components/jquery.ui.touch-punch.js'
+            },
+            'ng-infinite-scroll.js': {
+                src: [
+                    'assets/components/ngInfiniteScroll/ng-infinite-scroll.js'
+                ],
+                dest: 'assets/components/ng-infinite-scroll.js'
             },
             'uploader.js': {
                 src: [
@@ -126,6 +177,16 @@ module.exports = function(grunt) {
             "ckeditor/bazalt-cms": {
                 files: [
                     { flatten: true, expand: true, src: ["assets/bazalt-cms/ckeditor/bazalt-cms/*"], dest: "assets/components/ckeditor/plugins/bazalt-cms/", filter: 'isFile'}
+                ]
+            },
+            "components/ace": {
+                files: [
+                    { flatten: true, expand: true, src: ["assets/components/ace-builds/src-min-noconflict/*"], dest: "assets/components/ace/", filter: 'isFile'}
+                ]
+            },
+            "modules/angular-ace/mode-twig": {
+                files: [
+                    { flatten: true, expand: true, src: ["assets/modules/angular-ace/mode-twig.js"], dest: "assets/components/ace/", filter: 'isFile'}
                 ]
             },
             "themes/default": {
@@ -160,12 +221,15 @@ module.exports = function(grunt) {
                         src: [
                             'App/**',
                             'assets/components/*.js',
+                            'assets/components/ace/**',
                             'assets/components/ckeditor/**',
+                            'assets/components/bootstrap/less/*',
                             'assets/modules/**',
                             'assets/*.js',
                             'Components/**',
                             'Framework/**',
                             'install/**',
+                            'Widgets/**',
                             'static/empty',
                             'uploads/empty',
                             'tmp/empty',
@@ -188,7 +252,14 @@ module.exports = function(grunt) {
         }
     });
 
+    //var components = grunt.file.expand('Components/*/Gruntfile.js');
+    /*for (var i in components) {
+        grunt.loadTasks(path.dirname(components[i]));
+    }*/
+
     // Load the plugin that provides the "uglify" task.
+    grunt.loadNpmTasks('grunt-php');
+    grunt.loadNpmTasks('grunt-phpunit');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-less');

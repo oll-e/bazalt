@@ -20,6 +20,7 @@ class Pages extends CMS\Webservice\Rest
      * @method POST
      * @provides application/json
      * @json
+     * @acl Components\Pages\Component::ACL_HAS_ACCESS
      * @return \Tonic\Response
      */
     public function savePage()
@@ -27,12 +28,12 @@ class Pages extends CMS\Webservice\Rest
         $data = new Data\Validator((array)$this->request->data);
         $page = isset($data['id']) ? Page::getById((int)$data['id']) : Page::create();
 
-        $languages = CMS\Language::getLanguages();
 
         $page->category_id = $data['category_id'];
         $page->is_published = $data['is_published'] == true;
         $page->save();
 
+        $languages = CMS\Language::getLanguages();
         $data->field('title')->validator('hasDefaultTranslate', function($value) use (&$page, $languages, $data) {
             //$user = CMS\Model\User::getUserByEmail($value);
             foreach ($languages as $language) {
@@ -67,6 +68,7 @@ class Pages extends CMS\Webservice\Rest
      * @method DELETE
      * @provides application/json
      * @json
+     * @acl Components\Pages\Component::ACL_HAS_ACCESS
      * @return \Tonic\Response
      */
     public function deletePage()
@@ -81,6 +83,7 @@ class Pages extends CMS\Webservice\Rest
      * @method GET
      * @provides application/json
      * @json
+     * @acl Components\Pages\Component::ACL_HAS_ACCESS
      * @return \Tonic\Response
      */
     public function get()
@@ -100,7 +103,9 @@ class Pages extends CMS\Webservice\Rest
         $collection = Page::getCollection(null, $category);
 
         if (!empty($_GET['sorting'])) {
-            $collection->orderBy($_GET['sorting'] . ' ' . ($_GET['sortingDirection'] == 'true' ? 'ASC' : 'DESC'));
+            foreach ($_GET['sorting'] as $name => $direction) {
+                $collection->orderBy($name . ' ' . ($direction == 'asc' ? 'ASC' : 'DESC'));
+            }
         }
         if (isset($_GET['filter']) && ($filter = json_decode($_GET['filter'], true))) {
             $collection->andWhereGroup();
@@ -122,6 +127,7 @@ class Pages extends CMS\Webservice\Rest
      * @param  int $news_id
      * @provides application/json
      * @json
+     * @acl Components\Pages\Component::ACL_HAS_ACCESS
      * @return \Tonic\Response
      */
     public function getPage($page_id)

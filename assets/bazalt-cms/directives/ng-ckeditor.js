@@ -6,6 +6,7 @@ bazaltCMS.directive('ckeditor', function() {
         link: function(scope, element, attrs, ngModel) {
             var expression = attrs.ngModel;
             var el = $(element);
+
             if (angular.isUndefined(CKEDITOR) || angular.isUndefined(CKEDITOR.instances)) {
                 return;
             }
@@ -43,7 +44,7 @@ bazaltCMS.directive('ckeditor', function() {
             });
             instance.on('pasteState', function() {
                 //scope.$apply(function() {
-                    ngModel.$setViewValue(instance.getData());
+                ngModel.$setViewValue(instance.getData());
                 //});
             });
 

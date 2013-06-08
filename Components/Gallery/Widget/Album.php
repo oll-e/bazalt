@@ -12,9 +12,9 @@ class Album extends CMS\Widget
     {
         $gallery = $this->getGallery();
         if ($gallery) {
-            $photos = Model\Photo::getByCategory($gallery);
-            $this->view->assign('photos', $photos->fetchAll());
-            $this->view->assign('category', $gallery);
+            $photos = Model\Photo::getCollection($gallery, true);
+            $this->view()->assign('photos', $photos->fetchAll());
+            $this->view()->assign('category', $gallery);
         }
 
         return parent::fetch();
@@ -22,12 +22,12 @@ class Album extends CMS\Widget
 
     public function getConfigPage($config)
     {
-        $this->view->assign('config', $this->options);
-        $this->view->assign('gallery', $this->getGallery());
+        $this->view()->assign('config', $this->options);
+        $this->view()->assign('gallery', $this->getGallery());
 
-        $root = Model\Album::getRoot();
-        $this->view->assign('tree', $root);
-        return $this->view->fetch('widgets/album-settings');
+        $coll = Model\Album::getCollection(true);
+        $this->view()->assign('galleries', $coll->fetchAll());
+        return $this->view()->fetch('widgets/album-settings');
     }
 
     public function getGallery()

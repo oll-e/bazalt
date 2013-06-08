@@ -51,4 +51,22 @@ abstract class Rest extends \Tonic\Resource
             default:
         }
     }
+
+    /**
+     * Condition method for the @secure annotation that checks the requests HTTP
+     * authentication details against the username and password given in the annotation.
+     *
+     * @param str $username
+     * @param str $password
+     * @throws UnauthorizedException
+     */
+    protected function acl($param)
+    {
+        list($class, $aclName) = explode('::', $param);
+        $value = constant($param);
+        $user = CMS\User::get();
+        if (!$user->hasRight($class, $value)) {
+            throw new CMS\Exception\AccessDenied('');
+        }
+    }
 }

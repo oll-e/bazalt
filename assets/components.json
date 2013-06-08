@@ -19,6 +19,9 @@
     "jquery-ui-touch-punch": "latest",
     "jquery-ui": "~1.10.2",
     "nestedSortable": "git://github.com/mjsarfatti/nestedSortable.git",
-    "ngInfiniteScroll": "~1.0.0"
+    "ngInfiniteScroll": "~1.0.0",
+    "ace-builds": "~1.0.0",
+    "bootstrap-colorpicker": "latest",
+    "modernizr": "~2.6.2"
   }
 }

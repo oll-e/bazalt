@@ -3,7 +3,6 @@
 namespace Framework\CMS;
 
 use Framework\Core\Event,
-    Framework\System\Routing\Route,
     Framework\CMS\Pagination\ApplicationTrait,
     Framework\Core\Logger;
 
@@ -48,6 +47,11 @@ abstract class Application
         $this->jsComponents[$name] = $file;
     }
 
+    public function jsComponents()
+    {
+        return $this->jsComponents;
+    }
+
     public function __construct($config = array())
     {
         $this->config = $config;
@@ -56,6 +60,11 @@ abstract class Application
     public function view()
     {
         return $this->view;
+    }
+
+    public function route()
+    {
+        return $this->route;
     }
 
     public function config()

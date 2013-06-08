@@ -14,13 +14,11 @@ class Component extends CMS\Component implements CMS\Menu\HasItems
 
     public function initComponent(CMS\Application $application)
     {
-        $application->registerJsComponent('Component.Menu', relativePath(__DIR__ . '/component.js'));
-        /*$controller = 'Components\Gallery\Controller\Index';
-        
-        Route::root()->connect('Gallery.List', '/gallery',                 ['component' => __CLASS__, 'controller' => $controller, 'action' => 'default'])
-                     ->connect('Gallery.Album',        '/{album}',         ['component' => __CLASS__, 'controller' => $controller, 'action' => 'album'])
-                     ->connect('Gallery.Photo',                '/{photo}', ['component' => __CLASS__, 'controller' => $controller, 'action' => 'photo']);
-        */
+        if ($application instanceof \App\Site\Application) {
+            $application->registerJsComponent('Component.Menu', relativePath(__DIR__ . '/component.js'));
+        } else {
+            $application->registerJsComponent('Component.Menu.Admin', relativePath(__DIR__ . '/admin.js'));
+        }
     }
 
     public function getMenuTypes()

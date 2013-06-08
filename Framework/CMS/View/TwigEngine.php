@@ -15,24 +15,25 @@ class TwigEngine extends View\Engine
         self::$extensions []= $extension;
     }
 
-    public function fetchString($string, $vars = array())
+    public static function fetchString($string, $vars = array())
     {
         using('Framework.Vendors.Twig');
 
-        $loader = new Twig_Loader_String();
-        $twig = new Twig_Environment($loader, array(
+        $loader = new \Twig_Loader_String();
+        $twig = new \Twig_Environment($loader, array(
             'debug' => true,
             'auto_reload' => true,
             'cache' => TEMP_DIR . '/templates/Twig'
         ));
 
         //$twig->enableAutoReload();
-        $twig->addExtension(new CMS_View_Twig_Extension());
+        $twig->addExtension(new Twig\Extension());
+        $twig->addExtension(new \Bazalt\Thumbs\Extension());
 
         foreach (self::$extensions as $ext) {
             $twig->addExtension($ext);
         }
-        $vars['bazalt_cms_locale_domain'] = $this->localeDomain;
+        //$vars['bazalt_cms_locale_domain'] = $this->localeDomain;
 
         return $twig->render($string, $vars);
     }
@@ -53,6 +54,7 @@ class TwigEngine extends View\Engine
         if (DEBUG) {
             $twig->addExtension(new \Twig_Extension_Debug());
         }
+        $twig->addExtension(new \Bazalt\Thumbs\Extension());
 
         foreach (self::$extensions as $ext) {
             $twig->addExtension($ext);

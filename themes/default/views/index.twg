@@ -1,1 +1,2 @@
-{% widgets 'home' %}
+
+    {% widgets 'main-page' %}

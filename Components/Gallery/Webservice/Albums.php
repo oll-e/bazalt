@@ -13,6 +13,7 @@ use Components\Gallery\Component;
 /**
  * @uri /gallery
  * @uri /gallery/:album_id
+ * @uri /gallery/:album_id/:photo_id
  */
 class Albums extends CMS\Webservice\Rest
 {
@@ -46,7 +47,7 @@ class Albums extends CMS\Webservice\Rest
     {
         $user = CMS\User::get();
         $album = Album::getById($album_id);
-        if (!$album->is_publish && !($user->hasRight(Component::getName(), Component::ACL_HAS_ACCESS))) {
+        if (!$album->is_published && !($user->hasRight(Component::getName(), Component::ACL_HAS_ACCESS))) {
             return new Response(403, null);
         }
         $collection = Photo::getCollection($album);
@@ -97,7 +98,7 @@ class Albums extends CMS\Webservice\Rest
             return new Response(400, $data->errors());
         }
         $album->is_hidden = $data->getData('is_hidden') ? '1' : '0';
-        $album->is_publish = $data->getData('is_publish') ? '1' : '0';
+        $album->is_published = $data->getData('is_published') ? '1' : '0';
         $album->save();
 
         return new Response(200, $album);
@@ -168,13 +169,13 @@ class Albums extends CMS\Webservice\Rest
             $name = $_FILES["file1"]["name"];
             $uploadName = CMS\Bazalt::uploadFilename($name, 'gallery');
             if (move_uploaded_file($tmp_name, $uploadName)) {
-                $result['file1']['file'] = relativePath($uploadName);
-                $result['file1']['size'] = $_FILES["file1"]['size'];
-                $result['file1']['name'] = $_FILES["file1"]['name'];
-
                 $photo = Photo::create();
                 $photo->title = pathinfo($name, PATHINFO_FILENAME);
                 $photo->image = relativePath($uploadName);
+
+                list($width, $height, $type, $attr) = getimagesize($uploadName);
+                $photo->width = $width;
+                $photo->height = $height;
                 $photo->order = $album->getMaxOrder() + 1;
                 $album->Photos->add($photo);
                 

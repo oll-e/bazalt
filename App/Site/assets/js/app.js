@@ -1,17 +1,18 @@
-var components = $('body').attr('bazalt-cms-components').split(',');
-
 var angularComponents = [],
     modules = [];
 
-for (var i = 0; i < components.length; i++) {
-    var component = components[i];
-    modules.push('/Components/' + component + '/component.js');
-    angularComponents.push('Component.' + component);
+for (var componentName in components) {
+    var file = components[componentName];
+    modules.push(file);
+    angularComponents.push(componentName);
 }
 
-require([].concat(modules), function() {
+define('site', [].concat(modules), function() {
     var app = angular.module('main', ['bazalt-cms'].concat(angularComponents)).
         config(['$routeProvider', '$locationProvider', '$httpProvider', function($routeProvider, $locationProvider, $httpProvider) {
+            // load content at first time
+            var page = $('[ng-view],.ng-view,ng-view').html();
+
             $routeProvider.
             //when('/', {controller: 'IndexCtrl', templateUrl:'/'}).
             otherwise({
@@ -23,6 +24,12 @@ require([].concat(modules), function() {
                 resolve: {
                     content: ['$q','$http', '$location', 'appLoading', function($q, $http, $location, appLoading) {
                         var deferred = $q.defer();
+                        // if this is first call get content from variable else ajax
+                        if (page) {
+                            deferred.resolve(page);
+                            page = null;
+                            return deferred.promise;
+                        }
                         appLoading.loading();
 
                         $http({method: 'GET', url: $location.url()})
@@ -62,6 +69,7 @@ require([].concat(modules), function() {
        });
     }]);
 
-    angular.bootstrap(document, ['main']);
+    angular.bootstrap(document.documentElement, ['main']);
 
+    return app;
 });

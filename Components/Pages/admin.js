@@ -51,12 +51,12 @@ define([
     .factory('AuthorsService', function($resource) {
             return $resource('/rest.php/news/authors/');
     })*/
-    .factory('CategoryService', function(ngNestedResource) {
-        var CategoryService = ngNestedResource('/rest.php/pages/categories/');
+    .factory('PagesCategoryService', function(ngNestedResource) {
+        var PagesCategoryService = ngNestedResource('/rest.php/pages/categories/');
 
-        return CategoryService;
+        return PagesCategoryService;
     })
-    .controller('PagesCtrl', function($scope, $rootScope, $filter, $location, $routeParams, $q, PagesService, CategoryService) {
+    .controller('PagesCtrl', function($scope, $rootScope, $filter, $location, $routeParams, $q, PagesService, PagesCategoryService, ngTableParams) {
         $scope.activateMenu('Pages'); // activate admin menu
 
         // for access from other controller
@@ -70,12 +70,12 @@ define([
         };
 
         // get categories
-        $scope.category = CategoryService.getTree(function(res) {
+        $scope.category = PagesCategoryService.getTree(function(res) {
             var parents = [];
             $scope.loading.category = false;
 
             // select active category
-            $scope.activeCategory = CategoryService.find(res, function(item) { return item.id == $routeParams.category_id; }, parents);
+            $scope.activeCategory = PagesCategoryService.find(res, function(item) { return item.id == $routeParams.category_id; }, parents);
 
             // open all nodes to active category
             if ($scope.activeCategory) {
@@ -89,17 +89,27 @@ define([
             $scope.params.category_id = (category) ? category.id : null;
             $scope.update($scope.params);
         }
-
-        $scope.update = function(params) {
+        $scope.pagesTable = new ngTableParams(
+            angular.extend({
+                page: 1,
+                count: 10
+            },
+            $location.search())
+        );
+        $scope.$watch('pagesTable', function(params) {
             $scope.params = params;
             $scope.loading.pages = true;
-            $location.search(params);
-            PagesService.get(params, function(result) {
+            $location.search(params.url());
+            PagesService.get(params.url(), function(result) {
                 $scope.loading.pages = false;
-                $scope.pages = result;
+                $scope.data = result.data;
+                $scope.pagesTable.total = result.pager.total;
+                if (!$scope.$$phase) {
+                    $scope.$apply();
+                }
             });
-        }
-        $scope.update($routeParams);
+        });
+
 
         $scope.selected = function() {
             var selected = [];
@@ -140,18 +150,6 @@ define([
             return q.promise;
         }*/
 
-        $rootScope.$watch('tr', function() {
-            $rootScope.breadcrumbs = [
-                {
-                    'title' : $filter('translate')('Dashboard', 'Pages'),
-                    'url': '#!/'
-                },
-                {
-                    'title' : $filter('translate')('Pages', 'Pages'),
-                    'url': '#!/pages'
-                }
-            ];
-        });
         $rootScope.breadcrumbs = [
             {
                 'title' : $filter('translate')('Dashboard', 'Pages'),
@@ -163,7 +161,7 @@ define([
             }
         ];
     })
-    .controller('CategoriesCtrl', function($scope, $rootScope, $filter, $routeParams, CategoryService) {
+    .controller('CategoriesCtrl', function($scope, $rootScope, $filter, $routeParams, PagesCategoryService) {
         $scope.activateMenu('Pages'); // activate admin menu
 
         $scope.addCategory = function (child) {
@@ -176,8 +174,16 @@ define([
         $scope.move = function(item, before, index) {
             item.$moveItem(before, index);
         };
+
+        $scope.saveCategory = function(item) {
+            var category = new PagesCategoryService(item);
+            item.$loading = true;
+            category.$save(function() {
+                item.$loading = false;
+            });
+        };
     })
-    .controller('PageCtrl', function($scope, $rootScope, $routeParams, $filter, $location, $timeout, PagesService, CategoryService) {
+    .controller('PageCtrl', function($scope, $rootScope, $routeParams, $filter, $location, $timeout, PagesService, PagesCategoryService) {
         $scope.activateMenu('Pages'); // activate admin menu
 
         $scope.loading = true;
@@ -219,35 +225,20 @@ define([
         $scope.categories = [];
 
         // get categories
-        CategoryService.getTree(function(res) {
-            var walk = function(items) {
+        PagesCategoryService.getTree(function(res) {
+            var walk = function(items, level) {
+                level = level || 1;
                 for (var i = 0; i < items.length; i++) {
                     $scope.categories.push({
                         id:    items[i].id,
-                        title: $filter('language')(items[i].title)
+                        title: (new Array(level).join('- ')) + $filter('language')(items[i].title)
                     });
-                    walk(items[i].children);
+                    walk(items[i].children, level + 1);
                 }
             }
             walk(res.children);
         });
 
-
-        $rootScope.$watch('tr', function() {
-            $rootScope.breadcrumbs = [
-                {
-                    'title' : $filter('translate')('Dashboard', 'Pages'),
-                    'url': '#!/'
-                },
-                {
-                    'title' : $filter('translate')('Pages', 'Pages'),
-                    'url': '#!/pages'
-                },
-                {
-                    'title' : $filter('translate')(pageTitle, 'Pages')
-                }
-            ];
-        });
         $rootScope.breadcrumbs = [
             {
                 'title' : $filter('translate')('Dashboard', 'Pages'),
